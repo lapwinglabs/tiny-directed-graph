@@ -33,6 +33,12 @@ function Graph() {
  */
 
 Graph.prototype.put = function(key, value) {
+  // update nodes, don't remove links
+  if (this.nodes[key]) {
+    this.nodes[key].value = value || NaN;
+    return this;
+  }
+
   this.nodes[key] = {
     value: value || NaN,
     backrefs: [],
@@ -133,8 +139,9 @@ Graph.prototype.exists = function(key) {
 keys(methods).forEach(function(action) {
   var attrs = methods[action];
 
-  Graph.prototype[action] = function(key, depth, fn, visiting, visited) {
-    if (arguments.length == 2) {
+  Graph.prototype[action] = function(key, depth, fn, ctx, visiting, visited) {
+    if ('function' == typeof depth) {
+      ctx = fn;
       fn = depth;
       depth = Infinity;
     }
@@ -166,10 +173,10 @@ keys(methods).forEach(function(action) {
       parents[item] = node.value;
     }
 
-    fn(parents, key);
+    fn.call(ctx, parents, key);
 
     for (var i = 0, item; item = arr[i]; i++) {
-      this[action](item, depth, fn, visiting, visited);
+      this[action](item, depth, fn, ctx, visiting, visited);
     }
 
     visited[key] = true;
