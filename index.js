@@ -33,14 +33,16 @@ function Graph() {
  */
 
 Graph.prototype.put = function(key, value) {
+  value = undefined === value ? NaN : value;
+
   // update nodes, don't remove links
   if (this.nodes[key]) {
-    this.nodes[key].value = value || NaN;
+    this.nodes[key].value = value;
     return this;
   }
 
   this.nodes[key] = {
-    value: value || NaN,
+    value: value,
     backrefs: [],
     edges: []
   };
