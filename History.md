@@ -1,4 +1,10 @@
 
+0.0.4 / 2015-10-19
+==================
+
+  * explicit upsort, downsort. add tests
+  * add function to get sorted nodes from single root
+
 0.0.3 / 2015-07-03
 ==================
 
