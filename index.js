@@ -186,7 +186,42 @@ keys(methods).forEach(function(action) {
 
     return this;
   }
-});
+})
+
+var visit = function (key, sorted, visited, visiting, dir, graph) {
+  if (visiting[key]) throw new Error('Graph is not acyclic')
+  if (visited[key]) return
+  visiting[key] = true
+  graph.nodes[key][methods[dir]].forEach(function (edge) {
+    visit(edge, sorted, visited, visiting, dir, graph)
+  })
+  visited[key] = true
+  visiting[key] = false
+  sorted.unshift(key)
+}
+
+Graph.prototype.upsorted = function (keys) {
+  if (!keys) keys = Object.keys(this.nodes)
+  return this._sorted(keys, 'up')
+}
+
+Graph.prototype.downsorted = function (keys) {
+  if (!keys) keys = Object.keys(this.nodes)
+  return this._sorted(keys, 'down')
+}
+
+Graph.prototype._sorted = function (keys, dir) {
+  if (typeof keys === 'string') keys = [keys]
+  else if (typeof keys === 'object' && !Array.isArray(keys)) keys = Object.keys(keys)
+  dir = dir || 'down'
+  var sorted = []
+  var visiting = {}
+  var visited = {}
+  keys.forEach(function (key) {
+    visit(key, sorted, visited, visiting, dir, this)
+  }, this)
+  return sorted
+}
 
 /**
  * toString
