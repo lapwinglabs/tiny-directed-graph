@@ -19,6 +19,8 @@ graph.up('e', 1, function(k) {
 // graph.unlink('b');
 // console.log(graph.toString());
 
-graph.down('a', function(obj, k) {
-  console.log('down', k, ' => ', obj);
+graph.down('a', function(obj, k, d) {
+  console.log('down', k, d, ' => ', obj);
 })
+
+console.log(graph.sorted_down('a'))

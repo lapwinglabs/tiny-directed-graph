@@ -186,7 +186,42 @@ keys(methods).forEach(function(action) {
 
     return this;
   }
-});
+
+  Graph.prototype['sorted_' + action] = function(key, depth) {
+    depth = depth || Infinity
+
+    var next_level = [key]
+    var nodes = this.nodes
+    var levels = []
+    var below = {}
+    var d = 0
+    while (d++ < depth && next_level.length) {
+      var children = {}
+      next_level = next_level.map(function (key) {
+        var node = nodes[key]
+        if (!node) throw new Error(key + ' doesn\'t exist.')
+        var edges = node[attrs]
+
+        for (var i = 0, child; child = edges[i]; i++) {
+          node = nodes[child]
+          children[child] = node.value
+          below[child] = d
+        }
+
+        return edges
+      }).reduce(function (a, b) { return a.concat(b) })
+      levels.push(next_level)
+    }
+
+    var sorted = []
+    for (var key in below) {
+      sorted.push({ key: key, depth: below[key] })
+    }
+
+    sorted.sort(function (a, b) { return a.depth - b.depth })
+    return sorted
+  }
+})
 
 /**
  * toString
