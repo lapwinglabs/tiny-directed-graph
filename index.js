@@ -186,42 +186,42 @@ keys(methods).forEach(function(action) {
 
     return this;
   }
-
-  Graph.prototype['sorted_' + action] = function(key, depth) {
-    depth = depth || Infinity
-
-    var next_level = [key]
-    var nodes = this.nodes
-    var levels = []
-    var below = {}
-    var d = 0
-    while (d++ < depth && next_level.length) {
-      var children = {}
-      next_level = next_level.map(function (key) {
-        var node = nodes[key]
-        if (!node) throw new Error(key + ' doesn\'t exist.')
-        var edges = node[attrs]
-
-        for (var i = 0, child; child = edges[i]; i++) {
-          node = nodes[child]
-          children[child] = node.value
-          below[child] = d
-        }
-
-        return edges
-      }).reduce(function (a, b) { return a.concat(b) })
-      levels.push(next_level)
-    }
-
-    var sorted = []
-    for (var key in below) {
-      sorted.push({ key: key, depth: below[key] })
-    }
-
-    sorted.sort(function (a, b) { return a.depth - b.depth })
-    return sorted
-  }
 })
+
+var visit = function (key, sorted, visited, visiting, dir, graph) {
+  if (visiting[key]) throw new Error('Graph is not acyclic')
+  if (visited[key]) return
+  visiting[key] = true
+  graph.nodes[key][methods[dir]].forEach(function (edge) {
+    visit(edge, sorted, visited, visiting, dir, graph)
+  })
+  visited[key] = true
+  visiting[key] = false
+  sorted.unshift(key)
+}
+
+Graph.prototype.upsorted = function (keys) {
+  if (!keys) keys = Object.keys(this.nodes)
+  return this._sorted(keys, 'up')
+}
+
+Graph.prototype.downsorted = function (keys) {
+  if (!keys) keys = Object.keys(this.nodes)
+  return this._sorted(keys, 'down')
+}
+
+Graph.prototype._sorted = function (keys, dir) {
+  if (typeof keys === 'string') keys = [keys]
+  else if (typeof keys === 'object' && !Array.isArray(keys)) keys = Object.keys(keys)
+  dir = dir || 'down'
+  var sorted = []
+  var visiting = {}
+  var visited = {}
+  keys.forEach(function (key) {
+    visit(key, sorted, visited, visiting, dir, this)
+  }, this)
+  return sorted
+}
 
 /**
  * toString
