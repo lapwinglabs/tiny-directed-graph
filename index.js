@@ -56,16 +56,13 @@ Graph.prototype.put = function(key, value) {
 
 Graph.prototype.link = function(from, to) {
   if (!this.nodes[from]) this.put(from);
-  if (!this.nodes[to]) this.put(to);
 
-  if ('string' == typeof to) {
-    this.nodes[from].edges.push(to);
-    this.nodes[to].backrefs.push(from);
-  } else {
-    this.nodes[from].edges = this.nodes[from].edges.concat(to);
-    for (var i = 0, node; node = to[i]; i++) {
-      this.nodes[to].backrefs.push(from);
-    }
+  if (typeof to === 'string') to = [to]
+
+  for (var i = 0, node; node = to[i]; i++) {
+    if (!this.nodes[node]) this.put(node);
+    if (!~this.nodes[from].edges.indexOf(node)) this.nodes[from].edges.push(node);
+    if (!~this.nodes[node].backrefs.indexOf(from)) this.nodes[node].backrefs.push(from);
   }
 
   return this;
