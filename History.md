@@ -1,4 +1,9 @@
 
+0.0.6 / 2015-11-19
+==================
+
+  * fix unlink bug (should be splicing indices not elements)
+
 0.0.5 / 2015-11-18
 ==================
 
