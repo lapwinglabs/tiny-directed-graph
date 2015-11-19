@@ -1,6 +1,6 @@
 {
   "name": "tiny-directed-graph",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "little directed graph with backlink support",
   "license": "MIT"
 }
