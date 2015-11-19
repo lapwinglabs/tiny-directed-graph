@@ -81,26 +81,24 @@ Graph.prototype.unlink = function(from, edges) {
   if (arguments.length == 1) {
     edges = node.edges;
     for (var i = 0, edge; edge = edges[i]; i++) {
-      nodes[edge].backrefs.splice(from, 1);
+      nodes[edge].backrefs.splice(nodes[edge].backrefs.indexOf(from), 1);
     }
     node.edges = []
+    // eliminate backrefs on `from` node
+    var backrefs = node.backrefs;
+    for (var i = 0, backref; backref = backrefs[i]; i++) {
+      nodes[backref].edges.splice(from, 1);
+    }
+    node.backrefs = [];
   } else if (typeof edges == 'string') {
-    nodes[edges].backrefs.splice(from, 1)
-    node.edges.splice(edges, 1);
-
+    nodes[edges].backrefs.splice(nodes[edges].backrefs.indexOf(from), 1)
+    node.edges.splice(node.edges.indexOf(edges), 1);
   } else {
     for (var i = 0, edge; edge = edges[i]; i++) {
-      nodes[edge].backrefs.splice(from, 1);
-      node.edges.splice(edge, 1);
+      nodes[edge].backrefs.splice(nodes[edge].backrefs.indexOf(from), 1);
+      node.edges.splice(node.edges.indexOf(edge), 1);
     }
   }
-
-  // eliminate backrefs on `from` node
-  var backrefs = node.backrefs;
-  for (var i = 0, backref; backref = backrefs[i]; i++) {
-    nodes[backref].edges.splice(from, 1);
-  }
-  node.backrefs = [];
 
   return this;
 };
